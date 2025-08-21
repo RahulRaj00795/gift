@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Button,
@@ -19,6 +19,7 @@ import {
   Form,
   Carousel,
 } from "antd";
+
 import {
   ShoppingCartOutlined,
   SearchOutlined,
@@ -27,71 +28,87 @@ import {
   DeleteOutlined,
   ShoppingOutlined,
 } from "@ant-design/icons";
+import { useRouter } from "next/navigation";
 import Footer from "./components/Footer.jsx";
 
 const { Title, Text, Paragraph } = Typography;
 const { Search } = Input;
 
 const GiftHomePage = () => {
+  const router = useRouter();
   const [cartItems, setCartItems] = useState([]);
   const [cartVisible, setCartVisible] = useState(false);
   const [checkoutVisible, setCheckoutVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Sample product data
-  const products = [
-    {
-      id: 1,
-      name: "Premium Gift Box Set",
-      category: "Gift Sets",
-      price: 2999,
-      image: "/g1.webp",
-      description:
-        "Elegant gift box containing premium items perfect for special occasions.",
-    },
-    {
-      id: 2,
-      name: "Custom Engraved Watch",
-      category: "Accessories",
-      price: 4999,
-      image: "/g2.png",
-      description:
-        "Personalized watch with custom engraving for a unique gift.",
-    },
-    {
-      id: 3,
-      name: "Luxury Perfume Collection",
-      category: "Beauty",
-      price: 3999,
-      image: "/g3.png",
-      description:
-        "Exclusive collection of luxury fragrances in elegant packaging.",
-    },
-    {
-      id: 4,
-      name: "Artisan Chocolate Box",
-      category: "Food & Beverages",
-      price: 1499,
-      image: "/g4.png",
-      description: "Handcrafted chocolates in a beautiful presentation box.",
-    },
-    {
-      id: 5,
-      name: "Personalized Photo Frame",
-      category: "Home & Garden",
-      price: 1999,
-      image: "/g5.png",
-      description: "Custom photo frame with personal message and design.",
-    },
-    {
-      id: 6,
-      name: "Premium Tea Set",
-      category: "Home & Garden",
-      price: 3499,
-      image: "/g6.png",
-      description: "Elegant tea set perfect for tea lovers and collectors.",
-    },
-  ];
+  // Product data from localStorage
+  const [products, setProducts] = useState([]);
+
+  // Load products from localStorage on component mount
+  useEffect(() => {
+    const savedProducts = localStorage.getItem("giftProducts");
+    if (savedProducts) {
+      setProducts(JSON.parse(savedProducts));
+    } else {
+      // Set default products if none exist
+      const defaultProducts = [
+        {
+          id: 1,
+          name: "Premium Gift Box Set",
+          category: "Gift Sets",
+          price: 2999,
+          image: "/g1.webp",
+          description:
+            "Elegant gift box containing premium items perfect for special occasions.",
+        },
+        {
+          id: 2,
+          name: "Custom Engraved Watch",
+          category: "Accessories",
+          price: 4999,
+          image: "/g2.png",
+          description:
+            "Personalized watch with custom engraving for a unique gift.",
+        },
+        {
+          id: 3,
+          name: "Luxury Perfume Collection",
+          category: "Beauty",
+          price: 3999,
+          image: "/g3.png",
+          description:
+            "Exclusive collection of luxury fragrances in elegant packaging.",
+        },
+        {
+          id: 4,
+          name: "Artisan Chocolate Box",
+          category: "Food & Beverages",
+          price: 1499,
+          image: "/g4.png",
+          description:
+            "Handcrafted chocolates in a beautiful presentation box.",
+        },
+        {
+          id: 5,
+          name: "Personalized Photo Frame",
+          category: "Home & Garden",
+          price: 1999,
+          image: "/g5.png",
+          description: "Custom photo frame with personal message and design.",
+        },
+        {
+          id: 6,
+          name: "Premium Tea Set",
+          category: "Home & Garden",
+          price: 3499,
+          image: "/g6.png",
+          description: "Elegant tea set perfect for tea lovers and collectors.",
+        },
+      ];
+      setProducts(defaultProducts);
+      localStorage.setItem("giftProducts", JSON.stringify(defaultProducts));
+    }
+  }, []);
 
   const filteredProducts = products.filter(
     (product) =>
@@ -309,7 +326,7 @@ const GiftHomePage = () => {
                     Special Occasions
                   </h2>
                   <p className="text-xl md:text-2xl mb-6">
-                    Celebrate life's precious moments with us
+                    Celebrate life&apos;s precious moments with us
                   </p>
                   <Button
                     type="primary"

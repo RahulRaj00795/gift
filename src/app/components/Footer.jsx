@@ -94,6 +94,11 @@ const Footer = () => {
                                     Need Help
                                 </a>
                             </li>
+                            <li>
+                                <a href="/admin/login" className="text-gray-300 hover:text-white transition-colors text-xs">
+                                    Admin Access
+                                </a>
+                            </li>
                         </ul>
                     </div>
 
@@ -113,7 +118,7 @@ const Footer = () => {
 
                             <div className="flex items-center space-x-3">
                                 <PhoneOutlined className="text-gray-400" />
-                                <Text className="!text-gray-300">+91-9999976904</Text>
+                                <Text className="!text-gray-300">+91-89296 00009</Text>
                             </div>
 
                             <div className="flex items-center space-x-3">
