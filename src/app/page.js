@@ -448,7 +448,7 @@ const GiftHomePage = () => {
           <List
             dataSource={cartItems}
             renderItem={(item) => (
-              <List.Item className="px-0">
+              <List.Item key={item.id} className="px-0">
                 <div className="flex items-center space-x-3 w-full">
                   <img
                     src={item.image}
@@ -504,7 +504,7 @@ const GiftHomePage = () => {
             <List
               dataSource={cartItems}
               renderItem={(item) => (
-                <List.Item className="px-0">
+                <List.Item key={item.id} className="px-0">
                   <div className="flex justify-between items-center w-full">
                     <div className="flex items-center space-x-3">
                       <img
