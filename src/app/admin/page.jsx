@@ -287,15 +287,24 @@ const AdminPage = () => {
           <Title level={2} className="text-gray-800">
             Product Management
           </Title>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            size="large"
-            onClick={handleAddNew}
-            className="bg-green-600 hover:bg-green-700"
-          >
-            Add New Product
-          </Button>
+          <div className="flex space-x-4">
+            <Button
+              type="default"
+              onClick={() => router.push('/admin/products')}
+              className="border-blue-500 text-blue-600 hover:border-blue-600"
+            >
+              Firebase Products
+            </Button>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              size="large"
+              onClick={handleAddNew}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              Add New Product
+            </Button>
+          </div>
         </div>
 
         {/* Products Table */}

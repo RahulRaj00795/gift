@@ -18,6 +18,7 @@ import {
   Empty,
   Form,
   Carousel,
+  Spin,
 } from "antd";
 
 import {
@@ -30,6 +31,8 @@ import {
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import Footer from "./components/Footer.jsx";
+import { useProducts } from "@/hooks/useProducts";
+import { useInquiries } from "@/hooks/useInquiries";
 
 const { Title, Text, Paragraph } = Typography;
 const { Search } = Input;
@@ -41,74 +44,9 @@ const GiftHomePage = () => {
   const [checkoutVisible, setCheckoutVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Product data from localStorage
-  const [products, setProducts] = useState([]);
-
-  // Load products from localStorage on component mount
-  useEffect(() => {
-    const savedProducts = localStorage.getItem("giftProducts");
-    if (savedProducts) {
-      setProducts(JSON.parse(savedProducts));
-    } else {
-      // Set default products if none exist
-      const defaultProducts = [
-        {
-          id: 1,
-          name: "Premium Gift Box Set",
-          category: "Gift Sets",
-          price: 2999,
-          image: "/g1.webp",
-          description:
-            "Elegant gift box containing premium items perfect for special occasions.",
-        },
-        {
-          id: 2,
-          name: "Custom Engraved Watch",
-          category: "Accessories",
-          price: 4999,
-          image: "/g2.png",
-          description:
-            "Personalized watch with custom engraving for a unique gift.",
-        },
-        {
-          id: 3,
-          name: "Luxury Perfume Collection",
-          category: "Beauty",
-          price: 3999,
-          image: "/g3.png",
-          description:
-            "Exclusive collection of luxury fragrances in elegant packaging.",
-        },
-        {
-          id: 4,
-          name: "Artisan Chocolate Box",
-          category: "Food & Beverages",
-          price: 1499,
-          image: "/g4.png",
-          description:
-            "Handcrafted chocolates in a beautiful presentation box.",
-        },
-        {
-          id: 5,
-          name: "Personalized Photo Frame",
-          category: "Home & Garden",
-          price: 1999,
-          image: "/g5.png",
-          description: "Custom photo frame with personal message and design.",
-        },
-        {
-          id: 6,
-          name: "Premium Tea Set",
-          category: "Home & Garden",
-          price: 3499,
-          image: "/g6.png",
-          description: "Elegant tea set perfect for tea lovers and collectors.",
-        },
-      ];
-      setProducts(defaultProducts);
-      localStorage.setItem("giftProducts", JSON.stringify(defaultProducts));
-    }
-  }, []);
+  // Use custom hooks for products and inquiries
+  const { products, loading: productsLoading, error: productsError } = useProducts();
+  const { submitInquiry, loading: inquiryLoading, error: inquiryError } = useInquiries();
 
   const filteredProducts = products.filter(
     (product) =>
@@ -362,55 +300,72 @@ const GiftHomePage = () => {
           <Title level={2} className="text-2xl text-gray-800 mb-6">
             Our Products
           </Title>
-          <Row gutter={[24, 24]}>
-            {filteredProducts.map((product) => (
-              <Col xs={24} sm={12} lg={8} xl={6} key={product.id}>
-                <Card
-                  hoverable
-                  className="h-full"
-                  cover={
-                    <div className="h-48 overflow-hidden">
-                      <img
-                        alt={product.name}
-                        src={product.image}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  }
-                  actions={[
-                    <Button
-                      key="add-to-cart"
-                      type="primary"
-                      icon={<PlusOutlined />}
-                      onClick={() => addToCart(product)}
-                      className="px-1"
-                    >
-                      Add to Cart
-                    </Button>,
-                  ]}
-                >
-                  <Card.Meta
-                    title={product.name}
-                    description={
-                      <div>
-                        <Text className="text-gray-600 block mb-2">
-                          {product.description}
-                        </Text>
-                        <div className="flex items-center justify-between">
-                          <Text className="text-lg font-bold text-blue-600">
-                            ₹{product.price.toLocaleString()}
-                          </Text>
-                          <Text className="text-sm text-gray-500">
-                            {product.category}
-                          </Text>
-                        </div>
+
+          {productsLoading ? (
+            <div className="text-center py-12">
+              <Spin size="large" />
+              <p className="mt-4 text-gray-600">Loading products...</p>
+            </div>
+          ) : productsError ? (
+            <div className="text-center py-12">
+              <p className="text-red-600 mb-4">{productsError}</p>
+              <Button onClick={() => window.location.reload()}>Retry</Button>
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <div className="text-center py-12">
+              <Empty description="No products found" />
+            </div>
+          ) : (
+            <Row gutter={[24, 24]}>
+              {filteredProducts.map((product) => (
+                <Col xs={24} sm={12} lg={8} xl={6} key={product.id}>
+                  <Card
+                    hoverable
+                    className="h-full"
+                    cover={
+                      <div className="h-48 overflow-hidden">
+                        <img
+                          alt={product.name}
+                          src={product.image}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                     }
-                  />
-                </Card>
-              </Col>
-            ))}
-          </Row>
+                    actions={[
+                      <Button
+                        key="add-to-cart"
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={() => addToCart(product)}
+                        className="px-1"
+                      >
+                        Add to Cart
+                      </Button>,
+                    ]}
+                  >
+                    <Card.Meta
+                      title={product.name}
+                      description={
+                        <div>
+                          <Text className="text-gray-600 block mb-2">
+                            {product.description}
+                          </Text>
+                          <div className="flex items-center justify-between">
+                            <Text className="text-lg font-bold text-blue-600">
+                              ₹{product.price.toLocaleString()}
+                            </Text>
+                            <Text className="text-sm text-gray-500">
+                              {product.category}
+                            </Text>
+                          </div>
+                        </div>
+                      }
+                    />
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          )}
         </div>
       </main>
 
@@ -550,14 +505,10 @@ const GiftHomePage = () => {
 // Checkout Form Component
 const CheckoutForm = ({ cartItems, totalAmount }) => {
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
+  const { submitInquiry, loading, error } = useInquiries();
 
   const onFinish = async (values) => {
-    setLoading(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
       // Prepare inquiry data
       const inquiryData = {
         ...values,
@@ -571,18 +522,21 @@ const CheckoutForm = ({ cartItems, totalAmount }) => {
         inquiryDate: new Date().toISOString(),
       };
 
-      console.log("Inquiry submitted:", inquiryData);
-      message.success(
-        "Inquiry submitted successfully! We'll get back to you soon."
-      );
-      form.resetFields();
+      const result = await submitInquiry(inquiryData);
 
-      // Close modal and clear cart
-      window.location.reload(); // Simple way to reset everything
+      if (result.success) {
+        message.success(
+          "Inquiry submitted successfully! We'll get back to you soon."
+        );
+        form.resetFields();
+
+        // Close modal and clear cart
+        window.location.reload(); // Simple way to reset everything
+      } else {
+        message.error(result.error || "Failed to submit inquiry. Please try again.");
+      }
     } catch (error) {
       message.error("Failed to submit inquiry. Please try again.");
-    } finally {
-      setLoading(false);
     }
   };
 
