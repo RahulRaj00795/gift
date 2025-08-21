@@ -379,6 +379,7 @@ const GiftHomePage = () => {
                   }
                   actions={[
                     <Button
+                      key="add-to-cart"
                       type="primary"
                       icon={<PlusOutlined />}
                       onClick={() => addToCart(product)}
