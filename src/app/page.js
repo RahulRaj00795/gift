@@ -319,49 +319,77 @@ const GiftHomePage = () => {
             <Row gutter={[24, 24]}>
               {filteredProducts.map((product) => (
                 <Col xs={24} sm={12} lg={8} xl={6} key={product.id}>
-                  <Card
-                    hoverable
-                    className="h-full"
-                    cover={
-                      <div className="h-48 overflow-hidden">
-                        <img
-                          alt={product.name}
-                          src={product.image}
-                          className="w-full h-full object-cover"
-                        />
+                  <div className="group relative bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border border-gray-100 h-full">
+                    {/* Product Image Container */}
+                    <div className="relative h-48 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+                      <img
+                        alt={product.name}
+                        src={product.image}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      {/* Premium Badge */}
+                      <div className="absolute top-3 left-3">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-md">
+                          Premium
+                        </span>
                       </div>
-                    }
-                    actions={[
-                      <Button
-                        key="add-to-cart"
-                        type="primary"
-                        icon={<PlusOutlined />}
-                        onClick={() => addToCart(product)}
-                        className="px-1"
-                      >
-                        Add to Cart
-                      </Button>,
-                    ]}
-                  >
-                    <Card.Meta
-                      title={product.name}
-                      description={
-                        <div>
-                          <Text className="text-gray-600 block mb-2">
-                            {product.description}
-                          </Text>
-                          <div className="flex items-center justify-between">
-                            <Text className="text-lg font-bold text-blue-600">
+                      {/* Category Badge */}
+                      <div className="absolute top-3 right-3">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-white/90 backdrop-blur-sm text-gray-700 shadow-md">
+                          {product.category}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Product Content */}
+                    <div className="p-4 flex flex-col min-h-48">
+                      {/* Product Title */}
+                      <div className="mb-3">
+                        <h3 className="text-base font-bold text-gray-800 leading-tight line-clamp-2 group-hover:text-blue-600 transition-colors duration-300">
+                          {product.name}
+                        </h3>
+                      </div>
+
+                      {/* Product Description */}
+                      <div className="mb-4 flex-1">
+                        <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">
+                          {product.description}
+                        </p>
+                      </div>
+
+                      {/* Price and Action Section */}
+                      <div className="mt-auto pt-2">
+                        {/* Price */}
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-baseline space-x-2">
+                            <span className="text-lg font-bold text-blue-600">
                               ₹{product.price.toLocaleString()}
-                            </Text>
-                            <Text className="text-sm text-gray-500">
-                              {product.category}
-                            </Text>
+                            </span>
+                            <span className="text-sm text-gray-400 line-through">
+                              ₹{(product.price * 1.15).toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="text-xs text-green-600 font-semibold bg-green-50 px-2 py-1 rounded-full">
+                            Save 15%
                           </div>
                         </div>
-                      }
-                    />
-                  </Card>
+
+                        {/* Add to Cart Button */}
+                        <Button
+                          type="primary"
+                          icon={<PlusOutlined />}
+                          onClick={() => addToCart(product)}
+                          className="w-full h-12 bg-blue-600 hover:bg-blue-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 font-semibold text-white text-base"
+                          size="large"
+                        >
+                          Add to Cart
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Premium Features Indicator */}
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+                  </div>
                 </Col>
               ))}
             </Row>
