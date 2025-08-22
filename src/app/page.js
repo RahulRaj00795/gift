@@ -48,20 +48,31 @@ const GiftHomePage = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
 
   // Use custom hooks for products and inquiries
-  const { products, loading: productsLoading, error: productsError } = useProducts();
-  const { submitInquiry, loading: inquiryLoading, error: inquiryError } = useInquiries();
+  const {
+    products,
+    loading: productsLoading,
+    error: productsError,
+  } = useProducts();
+  const {
+    submitInquiry,
+    loading: inquiryLoading,
+    error: inquiryError,
+  } = useInquiries();
 
   // Get unique categories from products
-  const categories = ["all", ...Array.from(new Set(products.map(product => product.category)))];
+  const categories = [
+    "all",
+    ...Array.from(new Set(products.map((product) => product.category))),
+  ];
 
-  const filteredProducts = products.filter(
-    (product) => {
-      const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.category.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
-      return matchesSearch && matchesCategory;
-    }
-  );
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch =
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "all" || product.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   const addToCart = (product) => {
     setCartItems((prevItems) => {
@@ -158,8 +169,6 @@ const GiftHomePage = () => {
           </div>
         </div>
       </header>
-
-
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -311,7 +320,9 @@ const GiftHomePage = () => {
         {/* Category Menu */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 mb-12 category-menu-container">
           <div className="p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Shop by Category</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              Shop by Category
+            </h3>
 
             {/* Category Quick Access Menu */}
             <div className="overflow-x-auto category-quick-access">
@@ -336,10 +347,13 @@ const GiftHomePage = () => {
         <div id="products-section" className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <Title level={2} className="text-2xl text-gray-800 mb-0">
-              {selectedCategory === "all" ? "All Products" : `${selectedCategory} Products`}
+              {selectedCategory === "all"
+                ? "All Products"
+                : `${selectedCategory} Products`}
             </Title>
             <div className="product-count">
-              {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} found
+              {filteredProducts.length} product
+              {filteredProducts.length !== 1 ? "s" : ""} found
             </div>
           </div>
 
@@ -617,7 +631,11 @@ const CheckoutForm = ({ cartItems, totalAmount }) => {
         form.resetFields();
 
         // Prepare WhatsApp message
-        const whatsappMessage = prepareWhatsAppMessage(values, inquiryData.cartItems, totalAmount);
+        const whatsappMessage = prepareWhatsAppMessage(
+          values,
+          inquiryData.cartItems,
+          totalAmount
+        );
 
         // Redirect to WhatsApp
         redirectToWhatsApp(whatsappMessage);
@@ -627,7 +645,9 @@ const CheckoutForm = ({ cartItems, totalAmount }) => {
           window.location.reload();
         }, 2000);
       } else {
-        message.error(result.error || "Failed to submit inquiry. Please try again.");
+        message.error(
+          result.error || "Failed to submit inquiry. Please try again."
+        );
       }
     } catch (error) {
       message.error("Failed to submit inquiry. Please try again.");
@@ -635,9 +655,14 @@ const CheckoutForm = ({ cartItems, totalAmount }) => {
   };
 
   const prepareWhatsAppMessage = (customerInfo, items, total) => {
-    const orderDetails = items.map(item =>
-      `• ${item.productName} (Qty: ${item.quantity}) - ₹${item.price.toLocaleString()}`
-    ).join('\n');
+    const orderDetails = items
+      .map(
+        (item) =>
+          `• ${item.productName} (Qty: ${
+            item.quantity
+          }) - ₹${item.price.toLocaleString()}`
+      )
+      .join("\n");
 
     const message = `Hello! I would like to place an order for the following items:
 
@@ -649,9 +674,13 @@ Customer Details:
 Name: ${customerInfo.firstName} ${customerInfo.lastName}
 Phone: ${customerInfo.phone}
 Email: ${customerInfo.email}
-${customerInfo.company ? `Company: ${customerInfo.company}` : ''}
+${customerInfo.company ? `Company: ${customerInfo.company}` : ""}
 Address: ${customerInfo.address}
-${customerInfo.additionalNotes ? `Additional Notes: ${customerInfo.additionalNotes}` : ''}
+${
+  customerInfo.additionalNotes
+    ? `Additional Notes: ${customerInfo.additionalNotes}`
+    : ""
+}
 
 Please confirm my order and provide payment details. Thank you!`;
 
@@ -662,7 +691,7 @@ Please confirm my order and provide payment details. Thank you!`;
     // You can change this phone number to your business WhatsApp number
     const phoneNumber = "9354382722"; // Replace with your actual WhatsApp number
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
-    window.open(whatsappUrl, '_blank');
+    window.open(whatsappUrl, "_blank");
   };
 
   return (
@@ -742,7 +771,8 @@ Please confirm my order and provide payment details. Thank you!`;
           <div className="space-y-3">
             <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg border border-blue-200">
               <WhatsAppOutlined className="text-green-600 mr-2" />
-              After submitting, you'll be redirected to WhatsApp to complete your order with our team.
+              After submitting, you&apos;ll be redirected to WhatsApp to
+              complete your order with our team.
             </div>
 
             <Button
