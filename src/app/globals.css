@@ -98,6 +98,28 @@ body {
   color: #2563eb !important;
 }
 
+/* Mobile Search Toggle Animation */
+.mobile-search-toggle {
+  transition: all 0.3s ease;
+}
+
+.mobile-search-toggle:hover {
+  background-color: #f3f4f6 !important;
+  color: #2563eb !important;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 767px) {
+  .ant-drawer-content-wrapper {
+    width: 100% !important;
+  }
+
+  .ant-modal {
+    max-width: 95vw !important;
+    margin: 10px !important;
+  }
+}
+
 .category-tabs .ant-tabs-tab.ant-tabs-tab-active {
   background-color: #2563eb !important;
   color: white !important;

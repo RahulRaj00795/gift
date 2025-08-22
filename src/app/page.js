@@ -30,6 +30,7 @@ import {
   DeleteOutlined,
   ShoppingOutlined,
   WhatsAppOutlined,
+  MenuOutlined,
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import Footer from "./components/Footer.jsx";
@@ -46,6 +47,8 @@ const GiftHomePage = () => {
   const [checkoutVisible, setCheckoutVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [mobileSearchVisible, setMobileSearchVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Use custom hooks for products and inquiries
   const {
@@ -58,6 +61,18 @@ const GiftHomePage = () => {
     loading: inquiryLoading,
     error: inquiryError,
   } = useInquiries();
+
+  // Check if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Get unique categories from products
   const categories = [
@@ -128,6 +143,10 @@ const GiftHomePage = () => {
     setCheckoutVisible(true);
   };
 
+  const toggleMobileSearch = () => {
+    setMobileSearchVisible(!mobileSearchVisible);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -135,45 +154,76 @@ const GiftHomePage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <h1 className="text-3xl font-bold text-red-600">
+              <h1 className="text-2xl sm:text-3xl font-bold text-red-600">
                 Jm <span className="text-gray-800">Novelties</span>
               </h1>
             </div>
 
-            {/* Search Bar */}
-            <div className="flex-1 max-w-md mx-8">
-              <Search
-                placeholder="Search products..."
-                allowClear
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="max-w-md"
-                size="large"
-                enterButton
-              />
-            </div>
+            {/* Desktop Search Bar - Hidden on Mobile */}
+            {!isMobile && (
+              <div className="flex-1 max-w-md mx-8">
+                <Search
+                  placeholder="Search products..."
+                  allowClear
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="max-w-md"
+                  size="large"
+                  enterButton
+                />
+              </div>
+            )}
 
-            {/* Cart Button */}
-            <div className="flex items-center space-x-4">
+            {/* Mobile Search Toggle and Cart */}
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              {/* Mobile Search Toggle */}
+              {isMobile && (
+                <Button
+                  type="text"
+                  icon={<SearchOutlined />}
+                  onClick={toggleMobileSearch}
+                  className="p-2 mobile-search-toggle"
+                  size="large"
+                />
+              )}
+
+              {/* Cart Button */}
               <Badge count={getTotalItems()} showZero={false}>
                 <Button
                   type="primary"
                   icon={<ShoppingCartOutlined />}
                   onClick={() => setCartVisible(true)}
                   className="bg-blue-600 hover:bg-blue-700"
+                  size={isMobile ? "middle" : "large"}
                 >
-                  Cart
+                  {!isMobile && "Cart"}
                 </Button>
               </Badge>
             </div>
           </div>
+
+          {/* Mobile Search Bar - Appears below header when toggled */}
+          {isMobile && mobileSearchVisible && (
+            <div className="mt-4">
+              <Search
+                placeholder="Search products..."
+                allowClear
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full"
+                size="large"
+                enterButton
+                onSearch={() => setMobileSearchVisible(false)}
+              />
+            </div>
+          )}
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-8">
         {/* Carousel Section */}
-        <div className="mb-12">
+        <div className="mb-8 sm:mb-12">
           <Carousel
             autoplay
             dots={{ position: "bottom" }}
@@ -181,24 +231,24 @@ const GiftHomePage = () => {
             className="rounded-lg overflow-hidden shadow-lg"
           >
             <div>
-              <div className="relative h-96 flex items-center justify-center overflow-hidden">
+              <div className="relative h-64 sm:h-96 flex items-center justify-center overflow-hidden">
                 <img
                   src="/g1.webp"
                   alt="Premium Gift Collection"
                   className="absolute inset-0 w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600/80 to-purple-600/80"></div>
-                <div className="relative z-10 text-center text-white">
-                  <h2 className="text-4xl md:text-6xl font-bold mb-4">
+                <div className="relative z-10 text-center text-white px-4">
+                  <h2 className="text-2xl sm:text-4xl md:text-6xl font-bold mb-2 sm:mb-4">
                     Premium Gift Collection
                   </h2>
-                  <p className="text-xl md:text-2xl mb-6">
+                  <p className="text-sm sm:text-xl md:text-2xl mb-4 sm:mb-6">
                     Discover our exclusive range of luxury gifts
                   </p>
                   <Button
                     type="primary"
-                    size="large"
-                    className="bg-white text-blue-600 hover:bg-gray-100 h-12 px-8 text-lg"
+                    size={isMobile ? "middle" : "large"}
+                    className="bg-white text-blue-600 hover:bg-gray-100 h-10 sm:h-12 px-4 sm:px-8 text-base sm:text-lg"
                     onClick={() =>
                       document
                         .getElementById("products-section")
@@ -212,24 +262,24 @@ const GiftHomePage = () => {
             </div>
 
             <div>
-              <div className="relative h-96 flex items-center justify-center overflow-hidden">
+              <div className="relative h-64 sm:h-96 flex items-center justify-center overflow-hidden">
                 <img
                   src="/g2.png"
                   alt="Custom Engraving"
                   className="absolute inset-0 w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-green-500/80 to-teal-500/80"></div>
-                <div className="relative z-10 text-center text-white">
-                  <h2 className="text-4xl md:text-6xl font-bold mb-4">
+                <div className="relative z-10 text-center text-white px-4">
+                  <h2 className="text-2xl sm:text-4xl md:text-6xl font-bold mb-2 sm:mb-4">
                     Custom Engraving
                   </h2>
-                  <p className="text-xl md:text-2xl mb-6">
+                  <p className="text-sm sm:text-xl md:text-2xl mb-4 sm:mb-6">
                     Personalize your gifts with custom messages
                   </p>
                   <Button
                     type="primary"
-                    size="large"
-                    className="bg-white text-green-600 hover:bg-gray-100 h-12 px-8 text-lg"
+                    size={isMobile ? "middle" : "large"}
+                    className="bg-white text-green-600 hover:bg-gray-100 h-10 sm:h-12 px-4 sm:px-8 text-base sm:text-lg"
                     onClick={() =>
                       document
                         .getElementById("products-section")
@@ -243,24 +293,24 @@ const GiftHomePage = () => {
             </div>
 
             <div>
-              <div className="relative h-96 flex items-center justify-center overflow-hidden">
+              <div className="relative h-64 sm:h-96 flex items-center justify-center overflow-hidden">
                 <img
                   src="/g3.png"
                   alt="Corporate Gifting"
                   className="absolute inset-0 w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-red-500/80 to-pink-500/80"></div>
-                <div className="relative z-10 text-center text-white">
-                  <h2 className="text-4xl md:text-6xl font-bold mb-4">
+                <div className="relative z-10 text-center text-white px-4">
+                  <h2 className="text-2xl sm:text-4xl md:text-6xl font-bold mb-2 sm:mb-4">
                     Corporate Gifting
                   </h2>
-                  <p className="text-xl md:text-2xl mb-6">
+                  <p className="text-sm sm:text-xl md:text-2xl mb-4 sm:mb-6">
                     Perfect gifts for your business partners
                   </p>
                   <Button
                     type="primary"
-                    size="large"
-                    className="bg-white text-red-600 hover:bg-gray-100 h-12 px-8 text-lg"
+                    size={isMobile ? "middle" : "large"}
+                    className="bg-white text-red-600 hover:bg-gray-100 h-10 sm:h-12 px-4 sm:px-8 text-base sm:text-lg"
                     onClick={() =>
                       document
                         .getElementById("products-section")
@@ -274,24 +324,24 @@ const GiftHomePage = () => {
             </div>
 
             <div>
-              <div className="relative h-96 flex items-center justify-center overflow-hidden">
+              <div className="relative h-64 sm:h-96 flex items-center justify-center overflow-hidden">
                 <img
                   src="/g5.png"
                   alt="Special Occasions"
                   className="absolute inset-0 w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/80 to-orange-500/80"></div>
-                <div className="relative z-10 text-center text-white">
-                  <h2 className="text-4xl md:text-6xl font-bold mb-4">
+                <div className="relative z-10 text-center text-white px-4">
+                  <h2 className="text-2xl sm:text-4xl md:text-6xl font-bold mb-2 sm:mb-4">
                     Special Occasions
                   </h2>
-                  <p className="text-xl md:text-2xl mb-6">
+                  <p className="text-sm sm:text-xl md:text-2xl mb-4 sm:mb-6">
                     Celebrate life&apos;s precious moments with us
                   </p>
                   <Button
                     type="primary"
-                    size="large"
-                    className="bg-white text-orange-600 hover:bg-gray-100 h-12 px-8 text-lg"
+                    size={isMobile ? "middle" : "large"}
+                    className="bg-white text-orange-600 hover:bg-gray-100 h-10 sm:h-12 px-4 sm:px-8 text-base sm:text-lg"
                     onClick={() =>
                       document
                         .getElementById("products-section")
@@ -307,33 +357,33 @@ const GiftHomePage = () => {
         </div>
 
         {/* Hero Section */}
-        <div className="text-center mb-12">
-          <Title level={1} className="text-4xl md:text-6xl text-gray-800 mb-4">
+        <div className="text-center mb-8 sm:mb-12 px-4">
+          <Title level={1} className="text-2xl sm:text-4xl md:text-6xl text-gray-800 mb-2 sm:mb-4">
             Discover Amazing Gifts
           </Title>
-          <Paragraph className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <Paragraph className="text-base sm:text-xl text-gray-600 max-w-2xl mx-auto">
             Explore our curated collection of premium gifts and novelties.
             Perfect for every occasion and every special someone.
           </Paragraph>
         </div>
 
         {/* Category Menu */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 mb-12 category-menu-container">
-          <div className="p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100 mb-8 sm:mb-12 category-menu-container">
+          <div className="p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4">
               Shop by Category
             </h3>
 
             {/* Category Quick Access Menu */}
             <div className="overflow-x-auto category-quick-access">
-              <div className="flex space-x-3 pb-2 min-w-max gap-2">
+              <div className="flex space-x-2 sm:space-x-3 pb-2 min-w-max gap-1 sm:gap-2">
                 {categories.map((category) => (
                   <Button
                     key={category}
                     type={selectedCategory === category ? "primary" : "default"}
-                    size="middle"
+                    size={isMobile ? "small" : "middle"}
                     onClick={() => setSelectedCategory(category)}
-                    className="whitespace-nowrap"
+                    className="whitespace-nowrap text-xs sm:text-sm"
                   >
                     {category === "all" ? "All Products" : category}
                   </Button>
@@ -344,14 +394,14 @@ const GiftHomePage = () => {
         </div>
 
         {/* Products Grid */}
-        <div id="products-section" className="mb-12">
-          <div className="flex items-center justify-between mb-6">
-            <Title level={2} className="text-2xl text-gray-800 mb-0">
+        <div id="products-section" className="mb-8 sm:mb-12">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-2 sm:gap-0">
+            <Title level={2} className="text-xl sm:text-2xl text-gray-800 mb-0">
               {selectedCategory === "all"
                 ? "All Products"
                 : `${selectedCategory} Products`}
             </Title>
-            <div className="product-count">
+            <div className="product-count text-sm sm:text-base text-gray-600">
               {filteredProducts.length} product
               {filteredProducts.length !== 1 ? "s" : ""} found
             </div>
@@ -388,43 +438,43 @@ const GiftHomePage = () => {
               />
             </div>
           ) : (
-            <Row gutter={[24, 24]}>
+            <Row gutter={[16, 16]} className="sm:gutter-[24px]">
               {filteredProducts.map((product) => (
-                <Col xs={24} sm={12} lg={8} xl={6} key={product.id}>
+                <Col xs={24} sm={12} md={8} lg={8} xl={6} key={product.id}>
                   <div className="group relative bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border border-gray-100 h-full">
                     {/* Product Image Container */}
-                    <div className="relative h-48 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+                    <div className="relative h-40 sm:h-48 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
                       <img
                         alt={product.name}
                         src={product.image}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       {/* Premium Badge */}
-                      <div className="absolute top-3 left-3">
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-md">
+                      <div className="absolute top-2 sm:top-3 left-2 sm:left-3">
+                        <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-md">
                           Premium
                         </span>
                       </div>
                       {/* Category Badge */}
-                      <div className="absolute top-3 right-3">
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-white/90 backdrop-blur-sm text-gray-700 shadow-md">
+                      <div className="absolute top-2 sm:top-3 right-2 sm:right-3">
+                        <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-semibold bg-white/90 backdrop-blur-sm text-gray-700 shadow-md">
                           {product.category}
                         </span>
                       </div>
                     </div>
 
                     {/* Product Content */}
-                    <div className="p-4 flex flex-col min-h-48">
+                    <div className="p-3 sm:p-4 flex flex-col min-h-40 sm:min-h-48">
                       {/* Product Title */}
-                      <div className="mb-3">
-                        <h3 className="text-base font-bold text-gray-800 leading-tight line-clamp-2 group-hover:text-blue-600 transition-colors duration-300">
+                      <div className="mb-2 sm:mb-3">
+                        <h3 className="text-sm sm:text-base font-bold text-gray-800 leading-tight line-clamp-2 group-hover:text-blue-600 transition-colors duration-300">
                           {product.name}
                         </h3>
                       </div>
 
                       {/* Product Description */}
-                      <div className="mb-4 flex-1">
-                        <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">
+                      <div className="mb-3 sm:mb-4 flex-1">
+                        <p className="text-xs sm:text-sm text-gray-600 leading-relaxed line-clamp-2">
                           {product.description}
                         </p>
                       </div>
@@ -432,16 +482,16 @@ const GiftHomePage = () => {
                       {/* Price and Action Section */}
                       <div className="mt-auto pt-2">
                         {/* Price */}
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-baseline space-x-2">
-                            <span className="text-lg font-bold text-blue-600">
+                        <div className="flex items-center justify-between mb-3 sm:mb-4">
+                          <div className="flex items-baseline space-x-1 sm:space-x-2">
+                            <span className="text-base sm:text-lg font-bold text-blue-600">
                               ₹{product.price.toLocaleString()}
                             </span>
-                            <span className="text-sm text-gray-400 line-through">
+                            <span className="text-xs sm:text-sm text-gray-400 line-through">
                               ₹{(product.price * 1.15).toLocaleString()}
                             </span>
                           </div>
-                          <div className="text-xs text-green-600 font-semibold bg-green-50 px-2 py-1 rounded-full">
+                          <div className="text-xs text-green-600 font-semibold bg-green-50 px-1 sm:px-2 py-1 rounded-full">
                             Save 15%
                           </div>
                         </div>
@@ -451,8 +501,8 @@ const GiftHomePage = () => {
                           type="primary"
                           icon={<PlusOutlined />}
                           onClick={() => addToCart(product)}
-                          className="w-full h-12 bg-blue-600 hover:bg-blue-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 font-semibold text-white text-base"
-                          size="large"
+                          className="w-full h-10 sm:h-12 bg-blue-600 hover:bg-blue-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 font-semibold text-white text-sm sm:text-base"
+                          size={isMobile ? "middle" : "large"}
                         >
                           Add to Cart
                         </Button>
@@ -475,11 +525,11 @@ const GiftHomePage = () => {
         placement="right"
         onClose={() => setCartVisible(false)}
         open={cartVisible}
-        width={400}
+        width={isMobile ? "100%" : 400}
         footer={
           <div className="space-y-4">
             <Divider />
-            <div className="flex justify-between items-center text-lg font-bold">
+            <div className="flex justify-between items-center text-base sm:text-lg font-bold">
               <span>Total:</span>
               <span className="text-blue-600">
                 ₹{getTotalPrice().toLocaleString()}
@@ -487,11 +537,11 @@ const GiftHomePage = () => {
             </div>
             <Button
               type="primary"
-              size="large"
+              size={isMobile ? "middle" : "large"}
               icon={<ShoppingOutlined />}
               onClick={handleCheckout}
               disabled={cartItems.length === 0}
-              className="w-full bg-green-600 hover:bg-green-700 h-12"
+              className="w-full bg-green-600 hover:bg-green-700 h-10 sm:h-12"
             >
               Proceed to Checkout
             </Button>
@@ -505,34 +555,34 @@ const GiftHomePage = () => {
             dataSource={cartItems}
             renderItem={(item) => (
               <List.Item key={item.id} className="px-0">
-                <div className="flex items-center space-x-3 w-full">
+                <div className="flex items-center space-x-2 sm:space-x-3 w-full">
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="w-16 h-16 object-cover rounded"
+                    className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded"
                   />
-                  <div className="flex-1">
-                    <Text strong className="block">
+                  <div className="flex-1 min-w-0">
+                    <Text strong className="block text-sm sm:text-base truncate">
                       {item.name}
                     </Text>
-                    <Text className="text-gray-600">
+                    <Text className="text-gray-600 text-xs sm:text-sm">
                       ₹{item.price.toLocaleString()}
                     </Text>
                   </div>
-                  <div className="flex items-center space-x-2 gap-2">
+                  <div className="flex items-center space-x-1 sm:space-x-2 gap-1 sm:gap-2">
                     <Button
-                      size="small"
+                      size={isMobile ? "small" : "small"}
                       icon={<MinusOutlined />}
                       onClick={() => updateQuantity(item.id, item.quantity - 1)}
                     />
-                    <span className="w-8 text-center">{item.quantity}</span>
+                    <span className="w-6 sm:w-8 text-center text-xs sm:text-sm">{item.quantity}</span>
                     <Button
-                      size="small"
+                      size={isMobile ? "small" : "small"}
                       icon={<PlusOutlined />}
                       onClick={() => updateQuantity(item.id, item.quantity + 1)}
                     />
                     <Button
-                      size="small"
+                      size={isMobile ? "small" : "small"}
                       danger
                       icon={<DeleteOutlined />}
                       onClick={() => removeFromCart(item.id)}
@@ -551,7 +601,7 @@ const GiftHomePage = () => {
         open={checkoutVisible}
         onCancel={() => setCheckoutVisible(false)}
         footer={null}
-        width={800}
+        width={isMobile ? "95%" : 800}
         destroyOnClose
       >
         <div className="space-y-6">
@@ -562,20 +612,20 @@ const GiftHomePage = () => {
               renderItem={(item) => (
                 <List.Item key={item.id} className="px-0">
                   <div className="flex justify-between items-center w-full">
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-2 sm:space-x-3">
                       <img
                         src={item.image}
                         alt={item.name}
-                        className="w-12 h-12 object-cover rounded"
+                        className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded"
                       />
                       <div>
-                        <Text strong>{item.name}</Text>
-                        <Text className="block text-gray-600">
+                        <Text strong className="text-sm sm:text-base">{item.name}</Text>
+                        <Text className="block text-gray-600 text-xs sm:text-sm">
                           Qty: {item.quantity}
                         </Text>
                       </div>
                     </div>
-                    <Text strong>
+                    <Text strong className="text-sm sm:text-base">
                       ₹{(item.price * item.quantity).toLocaleString()}
                     </Text>
                   </div>
@@ -583,7 +633,7 @@ const GiftHomePage = () => {
               )}
             />
             <Divider />
-            <div className="flex justify-between items-center text-lg font-bold">
+            <div className="flex justify-between items-center text-base sm:text-lg font-bold">
               <span>Total Amount:</span>
               <span className="text-blue-600">
                 ₹{getTotalPrice().toLocaleString()}
@@ -592,7 +642,7 @@ const GiftHomePage = () => {
           </Card>
 
           {/* Inquiry Form */}
-          <CheckoutForm cartItems={cartItems} totalAmount={getTotalPrice()} />
+          <CheckoutForm cartItems={cartItems} totalAmount={getTotalPrice()} isMobile={isMobile} />
         </div>
       </Modal>
 
@@ -603,7 +653,7 @@ const GiftHomePage = () => {
 };
 
 // Checkout Form Component
-const CheckoutForm = ({ cartItems, totalAmount }) => {
+const CheckoutForm = ({ cartItems, totalAmount, isMobile }) => {
   const [form] = Form.useForm();
   const { submitInquiry, loading, error } = useInquiries();
 
@@ -658,8 +708,7 @@ const CheckoutForm = ({ cartItems, totalAmount }) => {
     const orderDetails = items
       .map(
         (item) =>
-          `• ${item.productName} (Qty: ${
-            item.quantity
+          `• ${item.productName} (Qty: ${item.quantity
           }) - ₹${item.price.toLocaleString()}`
       )
       .join("\n");
@@ -676,11 +725,10 @@ Phone: ${customerInfo.phone}
 Email: ${customerInfo.email}
 ${customerInfo.company ? `Company: ${customerInfo.company}` : ""}
 Address: ${customerInfo.address}
-${
-  customerInfo.additionalNotes
-    ? `Additional Notes: ${customerInfo.additionalNotes}`
-    : ""
-}
+${customerInfo.additionalNotes
+        ? `Additional Notes: ${customerInfo.additionalNotes}`
+        : ""
+      }
 
 Please confirm my order and provide payment details. Thank you!`;
 
@@ -696,9 +744,9 @@ Please confirm my order and provide payment details. Thank you!`;
 
   return (
     <Card title="Your Information" size="small">
-      <Form form={form} layout="vertical" onFinish={onFinish} size="large">
-        <Row gutter={16}>
-          <Col span={12}>
+      <Form form={form} layout="vertical" onFinish={onFinish} size={isMobile ? "middle" : "large"}>
+        <Row gutter={isMobile ? 0 : 16}>
+          <Col xs={24} sm={12}>
             <Form.Item
               name="firstName"
               label="First Name"
@@ -709,7 +757,7 @@ Please confirm my order and provide payment details. Thank you!`;
               <Input placeholder="Enter first name" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={12}>
             <Form.Item
               name="lastName"
               label="Last Name"
@@ -722,8 +770,8 @@ Please confirm my order and provide payment details. Thank you!`;
           </Col>
         </Row>
 
-        <Row gutter={16}>
-          <Col span={12}>
+        <Row gutter={isMobile ? 0 : 16}>
+          <Col xs={24} sm={12}>
             <Form.Item
               name="email"
               label="Email"
@@ -735,7 +783,7 @@ Please confirm my order and provide payment details. Thank you!`;
               <Input placeholder="Enter email address" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={12}>
             <Form.Item
               name="phone"
               label="Phone Number"
@@ -769,7 +817,7 @@ Please confirm my order and provide payment details. Thank you!`;
 
         <Form.Item className="text-center">
           <div className="space-y-3">
-            <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg border border-blue-200">
+            <div className="text-xs sm:text-sm text-gray-600 bg-blue-50 p-2 sm:p-3 rounded-lg border border-blue-200">
               <WhatsAppOutlined className="text-green-600 mr-2" />
               After submitting, you&apos;ll be redirected to WhatsApp to
               complete your order with our team.
@@ -779,8 +827,8 @@ Please confirm my order and provide payment details. Thank you!`;
               type="primary"
               htmlType="submit"
               loading={loading}
-              size="large"
-              className="bg-green-600 hover:bg-green-700 h-12 px-8 text-lg"
+              size={isMobile ? "middle" : "large"}
+              className="bg-green-600 hover:bg-green-700 h-10 sm:h-12 px-4 sm:px-8 text-base sm:text-lg"
             >
               Submit Inquiry & Continue on WhatsApp
             </Button>
