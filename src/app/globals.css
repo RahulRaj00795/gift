@@ -116,3 +116,41 @@ body {
 .flex.items-center.justify-center.space-x-2>*+* {
   margin-left: 0.5rem !important;
 }
+
+/* Premium Cart Styling */
+.premium-cart .ant-drawer-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.premium-cart .ant-drawer-body {
+  background: #fafbfc !important;
+}
+
+.premium-cart .ant-drawer-footer {
+  background: #ffffff !important;
+  border-top: 1px solid #f1f5f9 !important;
+}
+
+.premium-cart .ant-drawer-title {
+  color: #1e293b !important;
+}
+
+.premium-cart .ant-drawer-close {
+  color: #64748b !important;
+  transition: color 0.2s ease !important;
+}
+
+.premium-cart .ant-drawer-close:hover {
+  color: #334155 !important;
+}
+
+/* Cart Item Hover Effect */
+.premium-cart .cart-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Quantity Badge */
+.premium-cart .quantity-badge {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}

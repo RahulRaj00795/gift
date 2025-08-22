@@ -128,6 +128,8 @@ const GiftHomePage = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="max-w-md"
+                size="large"
+                enterButton
               />
             </div>
 
@@ -447,7 +449,7 @@ const GiftHomePage = () => {
                       ₹{item.price.toLocaleString()}
                     </Text>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 gap-2">
                     <Button
                       size="small"
                       icon={<MinusOutlined />}
