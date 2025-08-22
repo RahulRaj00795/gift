@@ -19,6 +19,7 @@ import {
   Form,
   Carousel,
   Spin,
+  Tabs,
 } from "antd";
 
 import {
@@ -44,15 +45,22 @@ const GiftHomePage = () => {
   const [cartVisible, setCartVisible] = useState(false);
   const [checkoutVisible, setCheckoutVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
   // Use custom hooks for products and inquiries
   const { products, loading: productsLoading, error: productsError } = useProducts();
   const { submitInquiry, loading: inquiryLoading, error: inquiryError } = useInquiries();
 
+  // Get unique categories from products
+  const categories = ["all", ...Array.from(new Set(products.map(product => product.category)))];
+
   const filteredProducts = products.filter(
-    (product) =>
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchQuery.toLowerCase())
+    (product) => {
+      const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    }
   );
 
   const addToCart = (product) => {
@@ -150,6 +158,8 @@ const GiftHomePage = () => {
           </div>
         </div>
       </header>
+
+
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -298,11 +308,40 @@ const GiftHomePage = () => {
           </Paragraph>
         </div>
 
+        {/* Category Menu */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100 mb-12 category-menu-container">
+          <div className="p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Shop by Category</h3>
+
+            {/* Category Quick Access Menu */}
+            <div className="overflow-x-auto category-quick-access">
+              <div className="flex space-x-3 pb-2 min-w-max gap-2">
+                {categories.map((category) => (
+                  <Button
+                    key={category}
+                    type={selectedCategory === category ? "primary" : "default"}
+                    size="middle"
+                    onClick={() => setSelectedCategory(category)}
+                    className="whitespace-nowrap"
+                  >
+                    {category === "all" ? "All Products" : category}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Products Grid */}
         <div id="products-section" className="mb-12">
-          <Title level={2} className="text-2xl text-gray-800 mb-6">
-            Our Products
-          </Title>
+          <div className="flex items-center justify-between mb-6">
+            <Title level={2} className="text-2xl text-gray-800 mb-0">
+              {selectedCategory === "all" ? "All Products" : `${selectedCategory} Products`}
+            </Title>
+            <div className="product-count">
+              {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} found
+            </div>
+          </div>
 
           {productsLoading ? (
             <div className="text-center py-12">
@@ -316,7 +355,23 @@ const GiftHomePage = () => {
             </div>
           ) : filteredProducts.length === 0 ? (
             <div className="text-center py-12">
-              <Empty description="No products found" />
+              <Empty
+                className="enhanced-empty"
+                description={
+                  <div>
+                    <p className="text-gray-600 mb-2">No products found</p>
+                    {selectedCategory !== "all" && (
+                      <Button
+                        type="primary"
+                        onClick={() => setSelectedCategory("all")}
+                        className="mt-2"
+                      >
+                        View All Products
+                      </Button>
+                    )}
+                  </div>
+                }
+              />
             </div>
           ) : (
             <Row gutter={[24, 24]}>

@@ -85,6 +85,110 @@ body {
   border-color: #1d4ed8 !important;
 }
 
+/* Category Menu Styling */
+.category-tabs .ant-tabs-tab {
+  padding: 8px 16px !important;
+  margin: 0 4px 0 0 !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+}
+
+.category-tabs .ant-tabs-tab:hover {
+  background-color: #f3f4f6 !important;
+  color: #2563eb !important;
+}
+
+.category-tabs .ant-tabs-tab.ant-tabs-tab-active {
+  background-color: #2563eb !important;
+  color: white !important;
+  border-color: #2563eb !important;
+}
+
+.category-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: white !important;
+}
+
+.category-tabs .ant-tabs-ink-bar {
+  display: none !important;
+}
+
+.category-tabs .ant-tabs-nav {
+  margin-bottom: 0 !important;
+}
+
+/* Category Quick Access Buttons */
+.category-quick-access .ant-btn {
+  border-radius: 20px !important;
+  padding: 6px 16px !important;
+  height: auto !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+  border: 1px solid #d1d5db !important;
+}
+
+.category-quick-access .ant-btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15) !important;
+}
+
+.category-quick-access .ant-btn-primary {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+  border-color: #2563eb !important;
+  color: white !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25) !important;
+}
+
+.category-quick-access .ant-btn-primary:hover {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af) !important;
+  border-color: #1d4ed8 !important;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35) !important;
+}
+
+/* Category Menu Container */
+.category-menu-container {
+  background: white !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Responsive Category Menu */
+@media (max-width: 768px) {
+  .category-tabs .ant-tabs-tab {
+    padding: 6px 12px !important;
+    font-size: 14px !important;
+  }
+
+  .category-quick-access .ant-btn {
+    padding: 4px 12px !important;
+    font-size: 13px !important;
+  }
+}
+
+/* Product Count Badge */
+.product-count {
+  background: linear-gradient(135deg, #f3f4f6, #e5e7eb) !important;
+  color: #6b7280 !important;
+  padding: 4px 12px !important;
+  border-radius: 16px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  border: 1px solid #d1d5db !important;
+}
+
+/* Enhanced Empty State */
+.enhanced-empty .ant-empty-description {
+  color: #6b7280 !important;
+}
+
+.enhanced-empty .ant-empty-description p {
+  margin-bottom: 8px !important;
+}
+
+.enhanced-empty .ant-empty-description .ant-btn {
+  margin-top: 8px !important;
+}
+
 /* Product Card Layout Fixes */
 .min-h-48 {
   min-height: 12rem;
