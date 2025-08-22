@@ -118,7 +118,7 @@ const Footer = () => {
 
                             <div className="flex items-center space-x-3">
                                 <PhoneOutlined className="text-gray-400" />
-                                <Text className="!text-gray-300">+91-89296 00009</Text>
+                                <Text className="!text-gray-300">+91-9971653704</Text>
                             </div>
 
                             <div className="flex items-center space-x-3">
@@ -175,7 +175,7 @@ const Footer = () => {
             {/* Floating WhatsApp Button */}
             <div className="fixed bottom-6 right-6 z-50">
                 <a
-                    href="https://wa.me/918929600009"
+                    href="https://wa.me/919354382722"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center shadow-lg hover:bg-green-600 transition-colors"

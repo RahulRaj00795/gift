@@ -28,6 +28,7 @@ import {
   MinusOutlined,
   DeleteOutlined,
   ShoppingOutlined,
+  WhatsAppOutlined,
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import Footer from "./components/Footer.jsx";
@@ -556,18 +557,57 @@ const CheckoutForm = ({ cartItems, totalAmount }) => {
 
       if (result.success) {
         message.success(
-          "Inquiry submitted successfully! We'll get back to you soon."
+          "Inquiry submitted successfully! Redirecting to WhatsApp..."
         );
         form.resetFields();
 
-        // Close modal and clear cart
-        window.location.reload(); // Simple way to reset everything
+        // Prepare WhatsApp message
+        const whatsappMessage = prepareWhatsAppMessage(values, inquiryData.cartItems, totalAmount);
+
+        // Redirect to WhatsApp
+        redirectToWhatsApp(whatsappMessage);
+
+        // Close modal and clear cart after a short delay
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       } else {
         message.error(result.error || "Failed to submit inquiry. Please try again.");
       }
     } catch (error) {
       message.error("Failed to submit inquiry. Please try again.");
     }
+  };
+
+  const prepareWhatsAppMessage = (customerInfo, items, total) => {
+    const orderDetails = items.map(item =>
+      `• ${item.productName} (Qty: ${item.quantity}) - ₹${item.price.toLocaleString()}`
+    ).join('\n');
+
+    const message = `Hello! I would like to place an order for the following items:
+
+${orderDetails}
+
+Total Amount: ₹${total.toLocaleString()}
+
+Customer Details:
+Name: ${customerInfo.firstName} ${customerInfo.lastName}
+Phone: ${customerInfo.phone}
+Email: ${customerInfo.email}
+${customerInfo.company ? `Company: ${customerInfo.company}` : ''}
+Address: ${customerInfo.address}
+${customerInfo.additionalNotes ? `Additional Notes: ${customerInfo.additionalNotes}` : ''}
+
+Please confirm my order and provide payment details. Thank you!`;
+
+    return encodeURIComponent(message);
+  };
+
+  const redirectToWhatsApp = (message) => {
+    // You can change this phone number to your business WhatsApp number
+    const phoneNumber = "9354382722"; // Replace with your actual WhatsApp number
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+    window.open(whatsappUrl, '_blank');
   };
 
   return (
@@ -644,15 +684,22 @@ const CheckoutForm = ({ cartItems, totalAmount }) => {
         </Form.Item>
 
         <Form.Item className="text-center">
-          <Button
-            type="primary"
-            htmlType="submit"
-            loading={loading}
-            size="large"
-            className="bg-green-600 hover:bg-green-700 h-12 px-8 text-lg"
-          >
-            Submit Inquiry
-          </Button>
+          <div className="space-y-3">
+            <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg border border-blue-200">
+              <WhatsAppOutlined className="text-green-600 mr-2" />
+              After submitting, you'll be redirected to WhatsApp to complete your order with our team.
+            </div>
+
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={loading}
+              size="large"
+              className="bg-green-600 hover:bg-green-700 h-12 px-8 text-lg"
+            >
+              Submit Inquiry & Continue on WhatsApp
+            </Button>
+          </div>
         </Form.Item>
       </Form>
     </Card>
