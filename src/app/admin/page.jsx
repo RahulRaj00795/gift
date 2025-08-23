@@ -1,32 +1,33 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { 
-  Form, 
-  Input, 
-  Button, 
-  Select, 
-  message, 
-  Card, 
-  Row, 
-  Col, 
-  Typography, 
+import React, { useState, useEffect } from 'react';
+import {
+  Card,
+  Button,
   Table,
-  Popconfirm,
+  Modal,
+  Form,
+  Input,
+  InputNumber,
+  Select,
+  message,
   Space,
-  Upload,
-  Modal
-} from "antd";
-
-import { 
-  PlusOutlined, 
-  EditOutlined, 
-  DeleteOutlined, 
-  UploadOutlined,
+  Popconfirm,
+  Image,
+  Switch,
+  Typography
+} from 'antd';
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  ReloadOutlined,
   ArrowLeftOutlined,
   LogoutOutlined
-} from "@ant-design/icons";
-import { useRouter } from "next/navigation";
+} from '@ant-design/icons';
+import { useProducts } from '@/hooks/useProducts';
+import { seedDatabase } from '@/lib/seedData';
+import { useRouter } from 'next/navigation';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -34,11 +35,13 @@ const { Option } = Select;
 
 const AdminPage = () => {
   const [form] = Form.useForm();
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [seeding, setSeeding] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
+  
+  const { products, loading, error, addProduct, updateProduct, deleteProduct, fetchProducts } = useProducts();
 
   // Check authentication on component mount
   useEffect(() => {
@@ -50,127 +53,71 @@ const AdminPage = () => {
     }
   }, [router]);
 
-  // Load products from localStorage on component mount
-  useEffect(() => {
-    const savedProducts = localStorage.getItem('giftProducts');
-    if (savedProducts) {
-      setProducts(JSON.parse(savedProducts));
-    } else {
-      // Set default products if none exist
-      const defaultProducts = [
-        {
-          id: 1,
-          name: "Premium Gift Box Set",
-          category: "Gift Sets",
-          price: 2999,
-          image: "/g1.webp",
-          description: "Elegant gift box containing premium items perfect for special occasions."
-        },
-        {
-          id: 2,
-          name: "Custom Engraved Watch",
-          category: "Accessories",
-          price: 4999,
-          image: "/g2.png",
-          description: "Personalized watch with custom engraving for a unique gift."
-        },
-        {
-          id: 3,
-          name: "Luxury Perfume Collection",
-          category: "Beauty",
-          price: 3999,
-          image: "/g3.png",
-          description: "Exclusive collection of luxury fragrances in elegant packaging."
-        },
-        {
-          id: 4,
-          name: "Artisan Chocolate Box",
-          category: "Food & Beverages",
-          price: 1499,
-          image: "/g4.png",
-          description: "Handcrafted chocolates in a beautiful presentation box."
-        },
-        {
-          id: 5,
-          name: "Personalized Photo Frame",
-          category: "Home & Garden",
-          price: 1999,
-          image: "/g5.png",
-          description: "Custom photo frame with personal message and design."
-        },
-        {
-          id: 6,
-          name: "Premium Tea Set",
-          category: "Home & Garden",
-          price: 3499,
-          image: "/g6.png",
-          description: "Elegant tea set perfect for tea lovers and collectors."
-        }
-      ];
-      setProducts(defaultProducts);
-      localStorage.setItem('giftProducts', JSON.stringify(defaultProducts));
-    }
-  }, []);
-
-  const onFinish = async (values) => {
-    setLoading(true);
-    try {
-      console.log("Form submitted with values:", values);
-      
-      const newProduct = {
-        id: editingProduct ? editingProduct.id : Date.now(),
-        ...values,
-        price: parseInt(values.price)
-      };
-
-      console.log("New product object:", newProduct);
-
-      if (editingProduct) {
-        // Update existing product
-        const updatedProducts = products.map(p => 
-          p.id === editingProduct.id ? newProduct : p
-        );
-        setProducts(updatedProducts);
-        localStorage.setItem('giftProducts', JSON.stringify(updatedProducts));
-        console.log("Product updated, showing success message");
-        message.success("Product updated successfully!");
-      } else {
-        // Add new product
-        const updatedProducts = [...products, newProduct];
-        setProducts(updatedProducts);
-        localStorage.setItem('giftProducts', JSON.stringify(updatedProducts));
-        console.log("Product added, showing success message");
-        message.success("Product added successfully!");
-      }
-
-      form.resetFields();
-      setEditingProduct(null);
-      setIsModalVisible(false);
-    } catch (error) {
-      console.error("Error in onFinish:", error);
-      message.error("Failed to save product. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleEdit = (product) => {
-    setEditingProduct(product);
-    form.setFieldsValue(product);
-    setIsModalVisible(true);
-  };
-
-  const handleDelete = (productId) => {
-    const updatedProducts = products.filter(p => p.id !== productId);
-    setProducts(updatedProducts);
-    localStorage.setItem('giftProducts', JSON.stringify(updatedProducts));
-    message.success("Product deleted successfully!");
-  };
-
-  const handleAddNew = () => {
+  const handleAddProduct = () => {
     setEditingProduct(null);
     form.resetFields();
-    setIsModalVisible(true);
+    setModalVisible(true);
+  };
+
+  const handleEditProduct = (product) => {
+    setEditingProduct(product);
+    form.setFieldsValue(product);
+    setModalVisible(true);
+  };
+
+  const handleDeleteProduct = async (id) => {
+    const result = await deleteProduct(id);
+    if (result.success) {
+      message.success('Product deleted successfully');
+    } else {
+      message.error(result.error || 'Failed to delete product');
+    }
+  };
+
+  const handleSubmit = async (values) => {
+    setSubmitting(true);
+    try {
+      if (editingProduct) {
+        const result = await updateProduct(editingProduct.id, values);
+        if (result.success) {
+          message.success('Product updated successfully');
+          setModalVisible(false);
+          form.resetFields();
+        } else {
+          message.error(result.error || 'Failed to update product');
+        }
+      } else {
+        const result = await addProduct(values);
+        if (result.success) {
+          message.success('Product added successfully');
+          setModalVisible(false);
+          form.resetFields();
+        } else {
+          message.error(result.error || 'Failed to add product');
+        }
+      }
+    } catch (error) {
+      message.error('An error occurred');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSeedDatabase = async () => {
+    setSeeding(true);
+    try {
+      const success = await seedDatabase();
+      if (success) {
+        message.success('Database seeded successfully!');
+        await fetchProducts();
+      } else {
+        message.error('Failed to seed database');
+      }
+    } catch (error) {
+      message.error('Error seeding database');
+    } finally {
+      setSeeding(false);
+    }
   };
 
   const handleLogout = () => {
@@ -182,13 +129,14 @@ const AdminPage = () => {
   const columns = [
     {
       title: 'Image',
-      dataIndex: 'image',
       key: 'image',
-      render: (image) => (
-        <img 
-          src={image} 
-          alt="Product" 
-          className="w-16 h-16 object-cover rounded"
+      render: (_, record) => (
+        <Image
+          src={record.image}
+          alt={record.name}
+          width={60}
+          height={60}
+          style={{ objectFit: 'cover' }}
         />
       ),
     },
@@ -196,49 +144,63 @@ const AdminPage = () => {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
-      render: (text) => <Text strong>{text}</Text>,
+      sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
       title: 'Category',
       dataIndex: 'category',
       key: 'category',
+      filters: [...new Set(products.map(p => p.category))].map(cat => ({ text: cat, value: cat })),
+      onFilter: (value, record) => record.category === value,
     },
     {
       title: 'Price',
       dataIndex: 'price',
       key: 'price',
-      render: (price) => <Text className="text-green-600 font-bold">₹{price.toLocaleString()}</Text>,
+      render: (price) => `₹${price.toLocaleString()}`,
+      sorter: (a, b) => a.price - b.price,
     },
     {
-      title: 'Description',
-      dataIndex: 'description',
-      key: 'description',
-      render: (text) => <Text className="text-gray-600">{text.substring(0, 50)}...</Text>,
+      title: 'In Stock',
+      dataIndex: 'inStock',
+      key: 'inStock',
+      render: (inStock) => (
+        <Switch checked={inStock} disabled />
+      ),
+    },
+    {
+      title: 'Featured',
+      dataIndex: 'featured',
+      key: 'featured',
+      render: (featured) => (
+        <Switch checked={featured} disabled />
+      ),
     },
     {
       title: 'Actions',
       key: 'actions',
       render: (_, record) => (
-        <Space>
+        <Space size="small">
           <Button
-            type="primary"
+            type="default"
             icon={<EditOutlined />}
             size="small"
-            onClick={() => handleEdit(record)}
+            onClick={() => handleEditProduct(record)}
+            className="border-blue-200 text-blue-600 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200"
           >
             Edit
           </Button>
           <Popconfirm
             title="Are you sure you want to delete this product?"
-            onConfirm={() => handleDelete(record.id)}
+            onConfirm={() => handleDeleteProduct(record.id)}
             okText="Yes"
             cancelText="No"
           >
             <Button
-              type="primary"
-              danger
+              type="default"
               icon={<DeleteOutlined />}
               size="small"
+              className="border-red-200 text-red-600 hover:border-red-300 hover:bg-red-50 transition-all duration-200"
             >
               Delete
             </Button>
@@ -255,19 +217,12 @@ const AdminPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Button 
-                icon={<ArrowLeftOutlined />} 
-                onClick={() => router.push('/')}
-                className="mr-4"
-              >
-                Back to Home
-              </Button>
               <h1 className="text-3xl font-bold text-red-600">
                 Jm <span className="text-gray-800">Novelties</span>
               </h1>
             </div>
             <div className="flex items-center space-x-4">
-              <Text className="text-gray-600">Admin Panel</Text>
+              <Text className="text-gray-600">Firebase Admin Panel</Text>
               <Button
                 type="default"
                 icon={<LogoutOutlined />}
@@ -283,148 +238,164 @@ const AdminPage = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Back to Home Button */}
+        <div className="mb-6">
+          <Button 
+            icon={<ArrowLeftOutlined />} 
+            onClick={() => router.push('/')}
+            className="border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50"
+          >
+            Back to Home
+          </Button>
+        </div>
+        
         <div className="flex justify-between items-center mb-8">
           <Title level={2} className="text-gray-800">
-            Product Management
+            Firebase Product Management
           </Title>
-          <div className="flex space-x-4">
+          <Space>
             <Button
-              type="default"
-              onClick={() => router.push('/admin/products')}
-              className="border-blue-500 text-blue-600 hover:border-blue-600"
+              icon={<ReloadOutlined />}
+              onClick={fetchProducts}
+              loading={loading}
             >
-              Firebase Products
+              Refresh
             </Button>
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              size="large"
-              onClick={handleAddNew}
-              className="bg-green-600 hover:bg-green-700"
+              onClick={handleAddProduct}
             >
-              Add New Product
+              Add Product
             </Button>
-          </div>
+            <Button
+              onClick={handleSeedDatabase}
+              loading={seeding}
+            >
+              Seed Database
+            </Button>
+          </Space>
         </div>
 
-        {/* Products Table */}
-        <Card className="shadow-lg">
+        <Card>
           <Table
             columns={columns}
             dataSource={products}
             rowKey="id"
+            loading={loading}
             pagination={{
               pageSize: 10,
               showSizeChanger: true,
               showQuickJumper: true,
-              showTotal: (total, range) => 
-                `${range[0]}-${range[1]} of ${total} products`
             }}
           />
         </Card>
-      </main>
 
-      {/* Add/Edit Product Modal */}
-      <Modal
-        title={editingProduct ? "Edit Product" : "Add New Product"}
-        open={isModalVisible}
-        onCancel={() => {
-          setIsModalVisible(false);
-          setEditingProduct(null);
-          form.resetFields();
-        }}
-        footer={null}
-        width={600}
-        destroyOnClose
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={onFinish}
-          size="large"
+        <Modal
+          title={editingProduct ? 'Edit Product' : 'Add Product'}
+          open={modalVisible}
+          onCancel={() => setModalVisible(false)}
+          footer={null}
+          width={600}
         >
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="name"
-                label="Product Name"
-                rules={[{ required: true, message: "Please enter product name" }]}
-              >
-                <Input placeholder="Enter product name" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="category"
-                label="Product Category"
-                rules={[{ required: true, message: "Please select product category" }]}
-              >
-                <Select placeholder="Select category">
-                  <Option value="Gift Sets">Gift Sets</Option>
-                  <Option value="Accessories">Accessories</Option>
-                  <Option value="Beauty">Beauty</Option>
-                  <Option value="Food & Beverages">Food & Beverages</Option>
-                  <Option value="Home & Garden">Home & Garden</Option>
-                  <Option value="Electronics">Electronics</Option>
-                  <Option value="Clothing">Clothing</Option>
-                  <Option value="Toys & Games">Toys & Games</Option>
-                  <Option value="Sports & Outdoors">Sports & Outdoors</Option>
-                  <Option value="Other">Other</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Form.Item
-            name="price"
-            label="Price (₹)"
-            rules={[{ required: true, message: "Please enter product price" }]}
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSubmit}
+            initialValues={{
+              inStock: true,
+              featured: false,
+            }}
           >
-            <Input type="number" placeholder="Enter price" min={0} />
-          </Form.Item>
+            <Form.Item
+              name="name"
+              label="Product Name"
+              rules={[{ required: true, message: 'Please enter product name' }]}
+            >
+              <Input placeholder="Enter product name" />
+            </Form.Item>
 
-          <Form.Item
-            name="image"
-            label="Image URL"
-            rules={[{ required: true, message: "Please enter image URL" }]}
-          >
-            <Input placeholder="Enter image URL (e.g., /g1.webp)" />
-          </Form.Item>
+            <Form.Item
+              name="category"
+              label="Category"
+              rules={[{ required: true, message: 'Please select category' }]}
+            >
+              <Select placeholder="Select category">
+                <Option value="Gift Sets">Gift Sets</Option>
+                <Option value="Accessories">Accessories</Option>
+                <Option value="Beauty">Beauty</Option>
+                <Option value="Food & Beverages">Food & Beverages</Option>
+                <Option value="Home & Garden">Home & Garden</Option>
+                <Option value="Electronics">Electronics</Option>
+                <Option value="Books">Books</Option>
+                <Option value="Other">Other</Option>
+              </Select>
+            </Form.Item>
 
-          <Form.Item
-            name="description"
-            label="Product Description"
-            rules={[{ required: true, message: "Please describe the product" }]}
-          >
-            <TextArea 
-              rows={4} 
-              placeholder="Describe the product..."
-            />
-          </Form.Item>
+            <Form.Item
+              name="price"
+              label="Price (₹)"
+              rules={[{ required: true, message: 'Please enter price' }]}
+            >
+              <InputNumber
+                placeholder="Enter price"
+                min={0}
+                style={{ width: '100%' }}
+                formatter={value => `₹ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                parser={value => value.replace(/₹\s?|(,*)/g, '')}
+              />
+            </Form.Item>
 
-          <Form.Item className="text-center">
-            <Space>
-              <Button 
-                onClick={() => {
-                  setIsModalVisible(false);
-                  setEditingProduct(null);
-                  form.resetFields();
-                }}
-              >
-                Cancel
-              </Button>
-              <Button 
-                type="primary" 
-                htmlType="submit" 
-                loading={loading}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                {editingProduct ? "Update Product" : "Add Product"}
-              </Button>
-            </Space>
-          </Form.Item>
-        </Form>
-      </Modal>
+            <Form.Item
+              name="image"
+              label="Image URL"
+              rules={[{ required: true, message: 'Please enter image URL' }]}
+            >
+              <Input placeholder="Enter image URL" />
+            </Form.Item>
+
+            <Form.Item
+              name="description"
+              label="Description"
+              rules={[{ required: true, message: 'Please enter description' }]}
+            >
+              <TextArea rows={3} placeholder="Enter product description" />
+            </Form.Item>
+
+            <Form.Item
+              name="inStock"
+              label="In Stock"
+              valuePropName="checked"
+            >
+              <Switch />
+            </Form.Item>
+
+            <Form.Item
+              name="featured"
+              label="Featured Product"
+              valuePropName="checked"
+            >
+              <Switch />
+            </Form.Item>
+
+            <Form.Item className="text-center">
+              <Space>
+                <Button onClick={() => setModalVisible(false)} disabled={submitting}>
+                  Cancel
+                </Button>
+                <Button 
+                  type="primary" 
+                  htmlType="submit"
+                  loading={submitting}
+                  disabled={submitting}
+                >
+                  {editingProduct ? 'Update' : 'Add'} Product
+                </Button>
+              </Space>
+            </Form.Item>
+          </Form>
+        </Modal>
+      </main>
     </div>
   );
 };
