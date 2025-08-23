@@ -15,7 +15,10 @@ import {
   Popconfirm,
   Image,
   Switch,
-  Typography
+  Typography,
+  Row,
+  Col,
+  Divider
 } from 'antd';
 import {
   PlusOutlined,
@@ -103,133 +106,198 @@ const AdminPage = () => {
     }
   };
 
-  const handleSeedDatabase = async () => {
-    setSeeding(true);
-    try {
-      const success = await seedDatabase();
-      if (success) {
-        message.success('Database seeded successfully!');
-        await fetchProducts();
-      } else {
-        message.error('Failed to seed database');
-      }
-    } catch (error) {
-      message.error('Error seeding database');
-    } finally {
-      setSeeding(false);
-    }
-  };
-
   const handleLogout = () => {
     localStorage.removeItem('adminAuthenticated');
     message.success("Logged out successfully");
     router.push('/admin/login');
   };
 
-  const columns = [
-    {
-      title: 'Image',
-      key: 'image',
-      render: (_, record) => (
-        <Image
-          src={record.image}
-          alt={record.name}
-          width={60}
-          height={60}
-          style={{ objectFit: 'cover' }}
-        />
-      ),
-    },
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      sorter: (a, b) => a.name.localeCompare(b.name),
-    },
-    {
-      title: 'Category',
-      dataIndex: 'category',
-      key: 'category',
-      filters: [...new Set(products.map(p => p.category))].map(cat => ({ text: cat, value: cat })),
-      onFilter: (value, record) => record.category === value,
-    },
-    {
-      title: 'Price',
-      dataIndex: 'price',
-      key: 'price',
-      render: (price) => `₹${price.toLocaleString()}`,
-      sorter: (a, b) => a.price - b.price,
-    },
-    {
-      title: 'In Stock',
-      dataIndex: 'inStock',
-      key: 'inStock',
-      render: (inStock) => (
-        <Switch checked={inStock} disabled />
-      ),
-    },
-    {
-      title: 'Featured',
-      dataIndex: 'featured',
-      key: 'featured',
-      render: (featured) => (
-        <Switch checked={featured} disabled />
-      ),
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (_, record) => (
-        <Space size="small">
-          <Button
-            type="default"
-            icon={<EditOutlined />}
-            size="small"
-            onClick={() => handleEditProduct(record)}
-            className="border-blue-200 text-blue-600 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200"
-          >
-            Edit
-          </Button>
-          <Popconfirm
-            title="Are you sure you want to delete this product?"
-            onConfirm={() => handleDeleteProduct(record.id)}
-            okText="Yes"
-            cancelText="No"
-          >
+  // Responsive columns for different screen sizes
+  const getColumns = () => {
+    const baseColumns = [
+      {
+        title: 'Image',
+        key: 'image',
+        width: 80,
+        render: (_, record) => (
+          <Image
+            src={record.image}
+            alt={record.name}
+            width={60}
+            height={60}
+            style={{ objectFit: 'cover' }}
+            preview={false}
+          />
+        ),
+      },
+      {
+        title: 'Name',
+        dataIndex: 'name',
+        key: 'name',
+        sorter: (a, b) => a.name.localeCompare(b.name),
+        responsive: ['xl'],
+      },
+      {
+        title: 'Category',
+        dataIndex: 'category',
+        key: 'category',
+        filters: [...new Set(products.map(p => p.category))].map(cat => ({ text: cat, value: cat })),
+        onFilter: (value, record) => record.category === value,
+        responsive: ['xl'],
+      },
+      {
+        title: 'Price',
+        dataIndex: 'price',
+        key: 'price',
+        render: (price) => `₹${price.toLocaleString()}`,
+        sorter: (a, b) => a.price - b.price,
+        responsive: ['xl'],
+      },
+      {
+        title: 'Stock',
+        dataIndex: 'inStock',
+        key: 'inStock',
+        width: 80,
+        render: (inStock) => (
+          <Switch checked={inStock} disabled size="small" />
+        ),
+        responsive: ['xl'],
+      },
+      {
+        title: 'Featured',
+        dataIndex: 'featured',
+        key: 'featured',
+        width: 80,
+        render: (featured) => (
+          <Switch checked={featured} disabled size="small" />
+        ),
+        responsive: ['xl'],
+      },
+      {
+        title: 'Actions',
+        key: 'actions',
+        width: 120,
+        render: (_, record) => (
+          <Space size="small" direction="vertical">
             <Button
               type="default"
-              icon={<DeleteOutlined />}
+              icon={<EditOutlined />}
               size="small"
-              className="border-red-200 text-red-600 hover:border-red-300 hover:bg-red-50 transition-all duration-200"
+              onClick={() => handleEditProduct(record)}
+              className="border-blue-200 text-blue-600 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 w-full"
             >
-              Delete
+              <span className="hidden sm:inline">Edit</span>
             </Button>
-          </Popconfirm>
-        </Space>
-      ),
-    },
-  ];
+            <Popconfirm
+              title="Delete this product?"
+              onConfirm={() => handleDeleteProduct(record.id)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button
+                type="default"
+                icon={<DeleteOutlined />}
+                size="small"
+                className="border-red-200 text-red-600 hover:border-red-300 hover:bg-red-50 transition-all duration-200 w-full"
+              >
+                <span className="hidden sm:inline">Delete</span>
+              </Button>
+            </Popconfirm>
+          </Space>
+        ),
+      },
+    ];
+
+    return baseColumns;
+  };
+
+  // Mobile-friendly product card
+  const renderMobileProductCard = (product) => (
+    <Card 
+      key={product.id} 
+      className="mb-4 shadow-sm hover:shadow-md transition-shadow duration-200 mobile-product-card admin-card"
+      bodyStyle={{ padding: '16px' }}
+    >
+      <div className="flex items-start space-x-3">
+        <Image
+          src={product.image}
+          alt={product.name}
+          width={80}
+          height={80}
+          style={{ objectFit: 'cover' }}
+          preview={false}
+          className="rounded-lg"
+        />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between">
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-gray-900 truncate">{product.name}</h3>
+              <p className="text-sm text-gray-600 mb-2">{product.category}</p>
+              <p className="text-lg font-bold text-red-600">₹{product.price.toLocaleString()}</p>
+            </div>
+            <div className="flex flex-col items-end space-y-2 ml-2">
+              <div className="flex items-center space-x-2">
+                <span className="text-xs text-gray-500">Stock:</span>
+                <Switch checked={product.inStock} disabled size="small" />
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs text-gray-500">Featured:</span>
+                <Switch checked={product.featured} disabled size="small" />
+              </div>
+            </div>
+          </div>
+          <div className="mt-3 flex space-x-2">
+            <Button
+              type="default"
+              icon={<EditOutlined />}
+              size="small"
+              onClick={() => handleEditProduct(product)}
+              className="border-blue-200 text-blue-600 hover:border-blue-300 hover:bg-blue-50 flex-1"
+            >
+              Edit
+            </Button>
+            <Popconfirm
+              title="Delete this product?"
+              onConfirm={() => handleDeleteProduct(product.id)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button
+                type="default"
+                icon={<DeleteOutlined />}
+                size="small"
+                className="border-red-200 text-red-600 hover:border-red-300 hover:bg-red-50 flex-1"
+              >
+                Delete
+              </Button>
+            </Popconfirm>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <header className="bg-white shadow-sm border-b admin-header">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-3xl font-bold text-red-600">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-red-600">
                 Jm <span className="text-gray-800">Novelties</span>
               </h1>
             </div>
-            <div className="flex items-center space-x-4">
-              <Text className="text-gray-600">Firebase Admin Panel</Text>
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <Text className="text-gray-600 hidden sm:block">Firebase Admin Panel</Text>
               <Button
                 type="default"
                 icon={<LogoutOutlined />}
                 onClick={handleLogout}
                 className="border-gray-300 text-gray-700 hover:border-gray-400"
+                size="small"
               >
-                Logout
+                <span className="hidden sm:inline">Logout</span>
               </Button>
             </div>
           </div>
@@ -237,20 +305,22 @@ const AdminPage = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 admin-container">
         {/* Back to Home Button */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <Button 
             icon={<ArrowLeftOutlined />} 
             onClick={() => router.push('/')}
             className="border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50"
+            size="small"
           >
-            Back to Home
+            <span className="hidden sm:inline">Back to Home</span>
+            <span className="sm:hidden">Back</span>
           </Button>
         </div>
         
-        <div className="flex justify-between items-center mb-8">
-          <Title level={2} className="text-gray-800">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 sm:mb-8 space-y-4 sm:space-y-0">
+          <Title level={2} className="text-gray-800 text-xl sm:text-2xl lg:text-3xl !mb-0 admin-title">
             Firebase Product Management
           </Title>
           <Space>
@@ -268,27 +338,45 @@ const AdminPage = () => {
             >
               Add Product
             </Button>
-            <Button
-              onClick={handleSeedDatabase}
-              loading={seeding}
-            >
-              Seed Database
-            </Button>
           </Space>
         </div>
 
-        <Card>
-          <Table
-            columns={columns}
-            dataSource={products}
-            rowKey="id"
-            loading={loading}
-            pagination={{
-              pageSize: 10,
-              showSizeChanger: true,
-              showQuickJumper: true,
-            }}
-          />
+        <Card className="admin-section">
+          {/* Desktop Table View */}
+          <div className="hidden xl:block">
+            <Table
+              columns={getColumns()}
+              dataSource={products}
+              rowKey="id"
+              loading={loading}
+              pagination={{
+                pageSize: 10,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                responsive: true,
+                size: 'default',
+              }}
+              scroll={{ x: 800 }}
+            />
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="xl:hidden">
+            {loading ? (
+              <div className="text-center py-8 admin-loading">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-2 text-gray-600">Loading products...</p>
+              </div>
+            ) : products.length === 0 ? (
+              <div className="text-center py-8 admin-empty">
+                <p className="text-gray-600">No products found</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {products.map(renderMobileProductCard)}
+              </div>
+            )}
+          </div>
         </Card>
 
         <Modal
@@ -296,7 +384,9 @@ const AdminPage = () => {
           open={modalVisible}
           onCancel={() => setModalVisible(false)}
           footer={null}
-          width={600}
+          width="90vw"
+          style={{ maxWidth: '600px' }}
+          className="admin-modal"
         >
           <Form
             form={form}
@@ -306,80 +396,99 @@ const AdminPage = () => {
               inStock: true,
               featured: false,
             }}
+            className="admin-form"
           >
-            <Form.Item
-              name="name"
-              label="Product Name"
-              rules={[{ required: true, message: 'Please enter product name' }]}
-            >
-              <Input placeholder="Enter product name" />
-            </Form.Item>
+            <Row gutter={[16, 16]} className="admin-form-row">
+              <Col xs={24} sm={24} className="admin-form-col">
+                <Form.Item
+                  name="name"
+                  label="Product Name"
+                  rules={[{ required: true, message: 'Please enter product name' }]}
+                >
+                  <Input placeholder="Enter product name" />
+                </Form.Item>
+              </Col>
+              
+              <Col xs={24} sm={12} className="admin-form-col">
+                <Form.Item
+                  name="category"
+                  label="Category"
+                  rules={[{ required: true, message: 'Please select category' }]}
+                >
+                  <Select placeholder="Select category">
+                    <Option value="Gift Sets">Gift Sets</Option>
+                    <Option value="Accessories">Accessories</Option>
+                    <Option value="Beauty">Beauty</Option>
+                    <Option value="Food & Beverages">Food & Beverages</Option>
+                    <Option value="Home & Garden">Home & Garden</Option>
+                    <Option value="Electronics">Electronics</Option>
+                    <Option value="Books">Books</Option>
+                    <Option value="Other">Other</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
 
-            <Form.Item
-              name="category"
-              label="Category"
-              rules={[{ required: true, message: 'Please select category' }]}
-            >
-              <Select placeholder="Select category">
-                <Option value="Gift Sets">Gift Sets</Option>
-                <Option value="Accessories">Accessories</Option>
-                <Option value="Beauty">Beauty</Option>
-                <Option value="Food & Beverages">Food & Beverages</Option>
-                <Option value="Home & Garden">Home & Garden</Option>
-                <Option value="Electronics">Electronics</Option>
-                <Option value="Books">Books</Option>
-                <Option value="Other">Other</Option>
-              </Select>
-            </Form.Item>
+              <Col xs={24} sm={12} className="admin-form-col">
+                <Form.Item
+                  name="price"
+                  label="Price (₹)"
+                  rules={[{ required: true, message: 'Please enter price' }]}
+                >
+                  <InputNumber
+                    placeholder="Enter price"
+                    min={0}
+                    style={{ width: '100%' }}
+                    formatter={value => `₹ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    parser={value => value.replace(/₹\s?|(,*)/g, '')}
+                  />
+                </Form.Item>
+              </Col>
 
-            <Form.Item
-              name="price"
-              label="Price (₹)"
-              rules={[{ required: true, message: 'Please enter price' }]}
-            >
-              <InputNumber
-                placeholder="Enter price"
-                min={0}
-                style={{ width: '100%' }}
-                formatter={value => `₹ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                parser={value => value.replace(/₹\s?|(,*)/g, '')}
-              />
-            </Form.Item>
+              <Col xs={24} className="admin-form-col">
+                <Form.Item
+                  name="image"
+                  label="Image URL"
+                  rules={[{ required: true, message: 'Please enter image URL' }]}
+                >
+                  <Input placeholder="Enter image URL" />
+                </Form.Item>
+              </Col>
 
-            <Form.Item
-              name="image"
-              label="Image URL"
-              rules={[{ required: true, message: 'Please enter image URL' }]}
-            >
-              <Input placeholder="Enter image URL" />
-            </Form.Item>
+              <Col xs={24} className="admin-form-col">
+                <Form.Item
+                  name="description"
+                  label="Description"
+                  rules={[{ required: true, message: 'Please enter description' }]}
+                >
+                  <TextArea rows={3} placeholder="Enter product description" />
+                </Form.Item>
+              </Col>
 
-            <Form.Item
-              name="description"
-              label="Description"
-              rules={[{ required: true, message: 'Please enter description' }]}
-            >
-              <TextArea rows={3} placeholder="Enter product description" />
-            </Form.Item>
+              <Col xs={24} sm={12} className="admin-form-col">
+                <Form.Item
+                  name="inStock"
+                  label="In Stock"
+                  valuePropName="checked"
+                >
+                  <Switch />
+                </Form.Item>
+              </Col>
 
-            <Form.Item
-              name="inStock"
-              label="In Stock"
-              valuePropName="checked"
-            >
-              <Switch />
-            </Form.Item>
+              <Col xs={24} sm={12} className="admin-form-col">
+                <Form.Item
+                  name="featured"
+                  label="Featured Product"
+                  valuePropName="checked"
+                >
+                  <Switch />
+                </Form.Item>
+              </Col>
+            </Row>
 
-            <Form.Item
-              name="featured"
-              label="Featured Product"
-              valuePropName="checked"
-            >
-              <Switch />
-            </Form.Item>
+            <Divider />
 
-            <Form.Item className="text-center">
-              <Space>
+            <Form.Item className="text-center !mb-0">
+              <Space size="middle" wrap>
                 <Button onClick={() => setModalVisible(false)} disabled={submitting}>
                   Cancel
                 </Button>

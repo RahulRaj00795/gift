@@ -85,6 +85,262 @@ body {
   border-color: #1d4ed8 !important;
 }
 
+/* Admin Page Responsive Styles */
+.admin-modal .ant-modal-content {
+  border-radius: 12px !important;
+}
+
+.admin-modal .ant-modal-header {
+  border-bottom: 1px solid #f0f0f0 !important;
+  padding: 20px 24px 16px !important;
+}
+
+.admin-modal .ant-modal-body {
+  padding: 0 24px 24px !important;
+}
+
+.admin-modal .ant-form-item-label>label {
+  font-weight: 500 !important;
+  color: #262626 !important;
+}
+
+.admin-modal .ant-input,
+.admin-modal .ant-select-selector,
+.admin-modal .ant-input-number {
+  border-radius: 8px !important;
+  border: 1px solid #d9d9d9 !important;
+  transition: all 0.3s ease !important;
+}
+
+.admin-modal .ant-input:focus,
+.admin-modal .ant-select-selector:focus,
+.admin-modal .ant-input-number:focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1) !important;
+}
+
+.admin-modal .ant-switch {
+  background-color: #d9d9d9 !important;
+}
+
+.admin-modal .ant-switch-checked {
+  background-color: #2563eb !important;
+}
+
+/* Responsive Table Styles - Only for mobile */
+@media (max-width: 1023px) {
+  .ant-table {
+    font-size: 14px !important;
+  }
+
+  .ant-table-thead>tr>th {
+    padding: 12px 8px !important;
+  }
+
+  .ant-table-tbody>tr>td {
+    padding: 12px 8px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-table {
+    font-size: 13px !important;
+  }
+
+  .ant-table-thead>tr>th {
+    padding: 8px 6px !important;
+  }
+
+  .ant-table-tbody>tr>td {
+    padding: 8px 6px !important;
+  }
+
+  .ant-pagination {
+    text-align: center !important;
+  }
+
+  .ant-pagination-options {
+    display: none !important;
+  }
+}
+
+/* Mobile Product Cards - Only for mobile */
+@media (max-width: 1023px) {
+  .mobile-product-card {
+    transition: all 0.3s ease !important;
+  }
+
+  .mobile-product-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+  }
+}
+
+/* Responsive Button Groups - Only for mobile */
+@media (max-width: 639px) {
+  .admin-actions {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .admin-actions .ant-btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+
+/* Responsive Header - Only for mobile */
+@media (max-width: 639px) {
+  .admin-header h1 {
+    font-size: 1.25rem !important;
+  }
+
+  .admin-header .ant-typography {
+    display: none !important;
+  }
+}
+
+/* Responsive Form Layout - Only for mobile */
+@media (max-width: 639px) {
+  .admin-form .ant-col {
+    margin-bottom: 16px !important;
+  }
+
+  .admin-form .ant-form-item {
+    margin-bottom: 16px !important;
+  }
+}
+
+/* Enhanced Mobile Experience - Only for mobile */
+@media (max-width: 1023px) {
+  .ant-card {
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+  }
+
+  .ant-card-body {
+    padding: 16px !important;
+  }
+}
+
+/* Loading States */
+.admin-loading {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 40px 20px !important;
+}
+
+.admin-loading .ant-spin {
+  margin-bottom: 16px !important;
+}
+
+/* Empty State */
+.admin-empty {
+  text-align: center !important;
+  padding: 40px 20px !important;
+}
+
+.admin-empty .ant-empty-description {
+  color: #8c8c8c !important;
+  font-size: 14px !important;
+}
+
+/* Responsive Typography - Only for mobile */
+@media (max-width: 639px) {
+  .admin-title {
+    font-size: 1.5rem !important;
+    line-height: 1.3 !important;
+  }
+
+  .admin-subtitle {
+    font-size: 1rem !important;
+    line-height: 1.4 !important;
+  }
+}
+
+/* Enhanced Button States - Only for mobile */
+@media (max-width: 1023px) {
+  .admin-btn {
+    transition: all 0.3s ease !important;
+    border-radius: 8px !important;
+  }
+
+  .admin-btn:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  .admin-btn:active {
+    transform: translateY(0) !important;
+  }
+}
+
+/* Responsive Spacing - Only for mobile */
+@media (max-width: 639px) {
+  .admin-container {
+    padding: 16px !important;
+  }
+
+  .admin-section {
+    margin-bottom: 24px !important;
+  }
+
+  .admin-card {
+    margin-bottom: 16px !important;
+  }
+}
+
+/* Mobile Navigation Improvements - Only for mobile */
+@media (max-width: 767px) {
+  .admin-nav {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .admin-nav .ant-btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+
+/* Enhanced Form Responsiveness - Only for mobile */
+@media (max-width: 639px) {
+  .admin-form-row {
+    margin: 0 !important;
+  }
+
+  .admin-form-col {
+    padding: 0 !important;
+    margin-bottom: 16px !important;
+  }
+
+  .admin-form-col:last-child {
+    margin-bottom: 0 !important;
+  }
+}
+
+/* Responsive Modal - Only for mobile */
+@media (max-width: 639px) {
+  .admin-modal .ant-modal {
+    margin: 16px !important;
+    max-width: calc(100vw - 32px) !important;
+  }
+
+  .admin-modal .ant-modal-content {
+    border-radius: 8px !important;
+  }
+
+  .admin-modal .ant-modal-header {
+    padding: 16px 20px 12px !important;
+  }
+
+  .admin-modal .ant-modal-body {
+    padding: 0 20px 20px !important;
+  }
+}
+
 /* Category Menu Styling */
 .category-tabs .ant-tabs-tab {
   padding: 8px 16px !important;
